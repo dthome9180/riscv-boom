@@ -533,11 +533,29 @@ class Rob(width: Int,
          }
       }
 
+
+	  val br_count = Reg(init = SInt(0, 32))
+	  val br_mispre_count = Reg(init = SInt(0, 32))
+	  val total = Reg(init = SInt(0, 32))
+
       // -----------------------------------------------
       // Commit
       when (will_commit(w))
       {
          rob_val(rob_head) := Bool(false)
+		 
+		 // add statistics mispredict ratio
+		 total := total + 1.S
+		 when (rob_uop(rob_head).is_br_or_jmp && !rob_uop(rob_head).is_jump)
+		 {
+		 	br_count := br_count + 1.S
+			when(rob_uop(rob_head).stat_bpd_mispredicted)
+			{
+				br_mispre_count := br_mispre_count + 1.S
+			}
+			//printf("br_mispre_count = %d  /  br_count = %d \n", br_mispre_count, br_count )
+			
+		 }
       }
 
       // -----------------------------------------------

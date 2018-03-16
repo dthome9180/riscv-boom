@@ -45,7 +45,9 @@ class DefaultBoomConfig extends Config((site, here, up) => {
       maxBrCount = 8,
       btb = BTBsaParameters(nSets=64, nWays=4, nRAS=8, tagSz=20),
       enableBranchPredictor = true,
-      gshare = Some(GShareParameters(enabled = true, history_length=15))
+      //gshare = Some(GShareParameters(enabled = true, history_length=12))
+      //perceptron = Some(PerceptronParameters(enabled = true, history_length=16, num_entries=64, theta=46, weight_width=9))
+	  gghperceptron = Some(GGHPerceptronParameters(enabled = true, num_entries = 64, num_groups = 2, one_group_width = 8, history_length = 16, theta = 45, weight_width = 10))
    )
    // Widen L1toL2 bandwidth.
    case L1toL2Config => up(L1toL2Config, site).copy(

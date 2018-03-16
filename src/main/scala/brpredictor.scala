@@ -147,6 +147,27 @@ object BrPredictor
             history_length = boomParams.gshare.get.history_length,
             dualported = boomParams.gshare.get.dualported))
       }
+      else if (enableCondBrPredictor && boomParams.perceptron.isDefined && boomParams.perceptron.get.enabled)
+	  {
+	  	br_predictor = Module(new PerceptronBrPredictor(
+			fetch_width = fetch_width,
+            history_length = boomParams.perceptron.get.history_length,
+            num_entries = boomParams.perceptron.get.num_entries,
+            theta = boomParams.perceptron.get.theta,
+            weight_width = boomParams.perceptron.get.weight_width
+		))
+	  }
+      else if (enableCondBrPredictor && boomParams.gghperceptron.isDefined && boomParams.gghperceptron.get.enabled)
+	  {
+	  	br_predictor = Module(new GGHPerceptronBrPredictor(
+			fetch_width = fetch_width,
+            num_entries = boomParams.gghperceptron.get.num_entries,
+            num_groups = boomParams.gghperceptron.get.num_groups,
+            one_group_width = boomParams.gghperceptron.get.one_group_width,
+            theta = boomParams.gghperceptron.get.theta,
+            weight_width = boomParams.gghperceptron.get.weight_width
+		))
+	  }
       else if (enableCondBrPredictor && p(SimpleGShareKey).enabled)
       {
          br_predictor = Module(new SimpleGShareBrPredictor(
@@ -259,7 +280,7 @@ abstract class BrPredictor(fetch_width: Int, val history_length: Int)(implicit p
          "[brpredictor] mistmatch between short history and very long history implementations.")
    }
 
-
+//ENABLE_BPD_USHISTORY = false, ENABLE_BPD_UMODE_ONLY = false
    if (ENABLE_BPD_USHISTORY && !ENABLE_BPD_UMODE_ONLY)
    {
       ghistory := Mux(in_usermode, ghistory_uonly, ghistory_all)

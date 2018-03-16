@@ -1,5 +1,4 @@
-//******************************************************************************
-// Copyright (c) 2015, The Regents of the University of California (Regents).
+//****************************************************************************** // Copyright (c) 2015, The Regents of the University of California (Regents).
 // All Rights Reserved. See LICENSE for license details.
 //------------------------------------------------------------------------------
 //------------------------------------------------------------------------------
@@ -97,5 +96,23 @@ class GShareBrPredictor(
    counters.io.update.bits.do_initialize    := Bool(false)
 
    //------------------------------------------------------------
+
+// statistics misprect ratio
+	val predictionCount = Reg(init= SInt(0, 32))
+	val mispredCount = Reg(init = SInt(0, 32))
+	for(i <- 0 until fetch_width)
+	{
+		when(commit.valid){
+			when(commit.bits.ctrl.executed(i))
+			{
+				predictionCount := predictionCount + 1.S
+				when(commit.bits.ctrl.mispredicted(i))
+				{
+					mispredCount := mispredCount + 1.S	
+				}
+				printf("mis_pred = %d   br_total = %d\n", mispredCount, predictionCount)
+			}
+		}
+	}
 }
 

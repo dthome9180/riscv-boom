@@ -40,6 +40,8 @@ case class BoomCoreParams(
    btb: BTBsaParameters = BTBsaParameters(),
    tage: Option[TageParameters] = None,
    gshare: Option[GShareParameters] = None,
+   perceptron: Option[PerceptronParameters] = None,
+   gghperceptron: Option[GGHPerceptronParameters] = None,
    gskew: Option[GSkewParameters] = None,
    intToFpLatency: Int = 2,
    imulLatency: Int = 3,
@@ -151,6 +153,8 @@ trait HasBoomCoreParameters extends tile.HasCoreParameters
 
    val tageParams = boomParams.tage
    val gshareParams = boomParams.gshare
+   val perceptronParams = boomParams.perceptron
+   val gghperceptronParams = boomParams.gghperceptron
    val gskewParams = boomParams.gskew
 
    if (!ENABLE_BRANCH_PREDICTOR)
@@ -173,6 +177,16 @@ trait HasBoomCoreParameters extends tile.HasCoreParameters
    {
       GLOBAL_HISTORY_LENGTH = gshareParams.get.history_length
       BPD_INFO_SIZE = GShareBrPredictor.GetRespInfoSize(p, GLOBAL_HISTORY_LENGTH)
+   }
+   else if (perceptronParams.isDefined && perceptronParams.get.enabled)
+   {
+      GLOBAL_HISTORY_LENGTH = perceptronParams.get.history_length
+      BPD_INFO_SIZE = PerceptronBrPredictor.GetRespInfoSize(p, log2Up(perceptronParams.get.num_entries),fetchWidth, GLOBAL_HISTORY_LENGTH)
+   }
+   else if (gghperceptronParams.isDefined && gghperceptronParams.get.enabled)
+   {
+      GLOBAL_HISTORY_LENGTH = gghperceptronParams.get.history_length
+      BPD_INFO_SIZE = GGHPerceptronBrPredictor.GetRespInfoSize(p, log2Up(gghperceptronParams.get.num_entries), fetchWidth, GLOBAL_HISTORY_LENGTH, log2Up(gghperceptronParams.get.num_groups))
    }
    else if (p(SimpleGShareKey).enabled)
    {
